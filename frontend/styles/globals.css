@@ -1,0 +1,287 @@
+/* Twin Track AI — Global Styles */
+/* Design System: DESIGN_SYSTEM.md 기반 */
+
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css');
+
+/* ========== CSS 변수 ========== */
+:root {
+  /* 브랜드 색상 (4색만 사용) */
+  --color-primary:        #0B2D72;  /* Deep Navy — CTA, 헤드라인, 로고 */
+  --color-secondary:      #0992C2;  /* Mid Blue — 링크, 서브 강조, 입력 포커스 */
+  --color-accent:         #0AC4E0;  /* Cyan — 진행바, 성공 아이콘, 활성 상태 */
+  --color-surface:        #F6E7BC;  /* Warm Cream — 페이지 배경, 비활성 섹션 */
+
+  /* 텍스트 색상 */
+  --color-text-primary:   #1A1A1A;
+  --color-text-secondary: #5A5A5A;  /* 크림 배경 위 가독성 확보 */
+  --color-white:          #FFFFFF;
+  --color-danger:         #CC3333;
+
+  /* 폰트 스케일 */
+  --font-xs:    12px;
+  --font-sm:    14px;
+  --font-md:    16px;
+  --font-lg:    18px;
+  --font-xl:    24px;
+  --font-2xl:   32px;
+  --font-score: 48px;
+
+  /* 폰트 굵기 */
+  --weight-regular: 400;
+  --weight-medium:  500;
+  --weight-bold:    700;
+
+  /* 간격 (8px 그리드) */
+  --space-1:   4px;
+  --space-2:   8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-5:  20px;
+  --space-6:  24px;
+  --space-8:  32px;
+  --space-10: 40px;
+  --space-12: 48px;
+}
+
+/* ========== 전역 초기화 ========== */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: var(--font-md);
+  color: var(--color-text-primary);
+  background: var(--color-surface);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1.5;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font-family: inherit;
+}
+
+input,
+textarea,
+select {
+  font-family: inherit;
+  font-size: var(--font-md);
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+/* ========== 버튼 ========== */
+.btn-primary {
+  height: var(--space-12);
+  padding: 0 var(--space-6);
+  background: var(--color-primary);
+  color: var(--color-white);
+  border: none;
+  border-radius: 8px;
+  font-size: var(--font-md);
+  font-weight: var(--weight-medium);
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+}
+.btn-primary:hover  { opacity: 0.88; }
+.btn-primary:active { opacity: 0.75; }
+.btn-primary:disabled {
+  background: var(--color-text-secondary);
+  cursor: not-allowed;
+  opacity: 1;
+}
+
+.btn-secondary {
+  height: var(--space-12);
+  padding: 0 var(--space-6);
+  background: var(--color-white);
+  color: var(--color-primary);
+  border: 1.5px solid var(--color-primary);
+  border-radius: 8px;
+  font-size: var(--font-md);
+  font-weight: var(--weight-medium);
+  cursor: pointer;
+  transition: background 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+}
+.btn-secondary:hover { background: var(--color-surface); }
+.btn-secondary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-link {
+  background: none;
+  border: none;
+  color: var(--color-secondary);
+  font-size: var(--font-sm);
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+  font-family: inherit;
+}
+
+.btn-danger {
+  background: none;
+  border: none;
+  color: var(--color-danger);
+  font-size: var(--font-sm);
+  cursor: pointer;
+  padding: 0;
+  font-family: inherit;
+}
+
+/* ========== 입력창 ========== */
+.input {
+  width: 100%;
+  height: var(--space-12);
+  padding: 0 var(--space-4);
+  border: 1.5px solid #D0D0D0;
+  border-radius: 8px;
+  font-size: var(--font-md);
+  font-family: inherit;
+  background: var(--color-white);
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+.input:focus { border-color: var(--color-primary); }
+.input.error { border-color: var(--color-danger); }
+.input::placeholder { color: var(--color-text-secondary); }
+.input:disabled {
+  background: var(--color-surface);
+  cursor: not-allowed;
+}
+
+/* ========== 카드 ========== */
+.card {
+  background: var(--color-white);
+  border-radius: 12px;
+  padding: var(--space-4);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+/* ========== 진행바 ========== */
+.progress-bar {
+  width: 100%;
+  height: 6px;
+  background: #E8E0D0;
+  border-radius: 99px;
+  overflow: hidden;
+}
+.progress-bar__fill {
+  height: 100%;
+  background: var(--color-accent);
+  border-radius: 99px;
+  transition: width 0.4s ease;
+}
+
+/* ========== 배지 ========== */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 4px 10px;
+  border-radius: 99px;
+  font-size: var(--font-xs);
+  font-weight: var(--weight-medium);
+}
+.badge--critical { background: #FFEAEA; color: var(--color-danger); }
+.badge--warning  { background: #FFF8E1; color: #B07800; }
+.badge--ok       { background: #E8F9F9; color: var(--color-secondary); }
+
+/* ========== 섹션 헤더 ========== */
+.section-header {
+  font-size: var(--font-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: var(--space-3);
+}
+
+/* ========== 상단 바 ========== */
+.app-bar {
+  height: 56px;
+  padding: 0 var(--space-4);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--color-white);
+  border-bottom: 1px solid var(--color-surface);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+/* ========== 레이아웃 ========== */
+.page {
+  min-height: 100vh;
+  background: var(--color-surface);
+}
+
+.container {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 0 var(--space-4);
+}
+
+.bottom-action {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: var(--space-4);
+  background: var(--color-white);
+  border-top: 1px solid var(--color-surface);
+}
+
+/* ========== 유틸리티 ========== */
+.text-primary   { color: var(--color-text-primary); }
+.text-secondary { color: var(--color-text-secondary); }
+.text-brand     { color: var(--color-primary); }
+.text-link      { color: var(--color-secondary); }
+.text-danger    { color: var(--color-danger); }
+.text-accent    { color: var(--color-accent); }
+
+.divider {
+  height: 1px;
+  background: var(--color-surface);
+  margin: var(--space-4) 0;
+}
+
+/* ========== 반응형 ========== */
+@media (max-width: 768px) {
+  .container {
+    padding: 0 var(--space-3);
+  }
+
+  .btn-primary,
+  .btn-secondary {
+    width: 100%;
+  }
+}
