@@ -19,8 +19,8 @@ function scoreToLabel(score: number): string {
 }
 
 function scoreToColor(score: number): string {
-  if (score >= 71) return 'var(--color-secondary)'
-  if (score >= 41) return '#B07800'
+  if (score >= 71) return 'var(--color-accent)'
+  if (score >= 41) return 'var(--color-warning)'
   return 'var(--color-danger)'
 }
 
@@ -56,7 +56,7 @@ export default async function ReportPage({ params }: PageProps) {
           href="/dashboard"
           style={{
             fontSize: 'var(--font-sm)',
-            color: 'var(--color-text-secondary)',
+            color: 'var(--color-text-tertiary)',
             display: 'inline-flex',
             alignItems: 'center',
             gap: 4,
@@ -71,7 +71,7 @@ export default async function ReportPage({ params }: PageProps) {
           <p
             style={{
               fontSize: 'var(--font-xs)',
-              color: 'var(--color-text-secondary)',
+              color: 'var(--color-text-tertiary)',
               marginBottom: 'var(--space-2)',
             }}
           >
@@ -93,7 +93,7 @@ export default async function ReportPage({ params }: PageProps) {
               <span
                 style={{
                   fontSize: 'var(--font-sm)',
-                  color: 'var(--color-text-secondary)',
+                  color: 'var(--color-text-tertiary)',
                 }}
               >
                 / 100
@@ -119,10 +119,10 @@ export default async function ReportPage({ params }: PageProps) {
         {/* AI 총평 */}
         {report.summary && (
           <div style={{ marginBottom: 'var(--space-6)' }}>
-            <p className="section-header">💬 AI 총평</p>
+            <p className="section-header">AI 총평</p>
             <div
               style={{
-                background: 'var(--color-white)',
+                background: 'var(--color-surface)',
                 borderRadius: 8,
                 padding: 'var(--space-4)',
                 fontSize: 'var(--font-sm)',
@@ -139,7 +139,7 @@ export default async function ReportPage({ params }: PageProps) {
         {/* 치명 이슈 */}
         {criticalIssues.length > 0 && (
           <section style={{ marginBottom: 'var(--space-6)' }}>
-            <p className="section-header">🔴 치명 이슈 {criticalIssues.length}건</p>
+            <p className="section-header">치명 이슈 {criticalIssues.length}건</p>
             {criticalIssues.map((issue) => (
               <IssueCard key={issue.id} issue={issue} isPro={isPro} />
             ))}
@@ -149,7 +149,7 @@ export default async function ReportPage({ params }: PageProps) {
         {/* 경고 이슈 (아코디언) */}
         {warningIssues.length > 0 && (
           <AccordionSection
-            title={`🟡 개선 권장 ${warningIssues.length}건`}
+            title={`개선 권장 ${warningIssues.length}건`}
             defaultOpen={criticalIssues.length === 0}
           >
             {warningIssues.map((issue) => (
@@ -160,7 +160,7 @@ export default async function ReportPage({ params }: PageProps) {
 
         {/* 정상 (아코디언) */}
         {okIssues.length > 0 && (
-          <AccordionSection title={`🟢 정상 작동 ${okIssues.length}건`} defaultOpen={false}>
+          <AccordionSection title={`정상 작동 ${okIssues.length}건`} defaultOpen={false}>
             {okIssues.map((issue) => (
               <IssueCard key={issue.id} issue={issue} isPro={isPro} />
             ))}
@@ -181,7 +181,7 @@ export default async function ReportPage({ params }: PageProps) {
               style={{
                 fontSize: 'var(--font-md)',
                 fontWeight: 'var(--weight-bold)',
-                color: 'var(--color-primary)',
+                color: 'var(--color-text-primary)',
                 marginBottom: 'var(--space-2)',
               }}
             >
@@ -211,7 +211,7 @@ export default async function ReportPage({ params }: PageProps) {
         {/* 비디오 레코딩 */}
         {report.video_url && (
           <div style={{ marginTop: 'var(--space-6)' }}>
-            <p className="section-header">🎬 테스트 영상</p>
+            <p className="section-header">테스트 영상</p>
             <video
               src={report.video_url}
               controls

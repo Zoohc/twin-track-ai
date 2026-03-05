@@ -15,15 +15,19 @@ export async function AppBar({ showNav = true }: AppBarProps) {
         style={{
           fontSize: 'var(--font-lg)',
           fontWeight: 'var(--weight-bold)',
-          color: 'var(--color-primary)',
-          letterSpacing: '-0.02em',
+          color: 'var(--color-text-primary)',
+          letterSpacing: '-0.03em',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 'var(--space-2)',
         }}
       >
+        <span style={{ color: 'var(--color-accent)', fontSize: 24, lineHeight: 1 }}>●</span>
         Twin Track AI
       </Link>
 
       {showNav && session && (
-        <nav style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)' }}>
+        <nav style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-5)' }}>
           <Link
             href="/dashboard/settings"
             style={{
@@ -45,7 +49,7 @@ export async function AppBar({ showNav = true }: AppBarProps) {
                 background: 'none',
                 border: 'none',
                 fontSize: 'var(--font-sm)',
-                color: 'var(--color-text-secondary)',
+                color: 'var(--color-text-tertiary)',
                 cursor: 'pointer',
                 fontFamily: 'inherit',
               }}

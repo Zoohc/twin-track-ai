@@ -3,11 +3,7 @@ import { redirect } from 'next/navigation'
 
 export default async function LandingPage() {
   const session = await auth()
-
-  // 이미 로그인된 경우 대시보드로
-  if (session?.userId) {
-    redirect('/dashboard')
-  }
+  if (session?.userId) redirect('/dashboard')
 
   return (
     <div className="page">
@@ -17,62 +13,88 @@ export default async function LandingPage() {
           style={{
             fontSize: 'var(--font-lg)',
             fontWeight: 'var(--weight-bold)',
-            color: 'var(--color-primary)',
-            letterSpacing: '-0.02em',
+            color: 'var(--color-text-primary)',
+            letterSpacing: '-0.03em',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 'var(--space-2)',
           }}
         >
+          <span style={{ color: 'var(--color-accent)', fontSize: 24, lineHeight: 1 }}>●</span>
           Twin Track AI
         </span>
       </header>
 
-      {/* 히어로 섹션 */}
       <main>
+        {/* 히어로 */}
         <div
           className="container"
           style={{
-            paddingTop: 'var(--space-10)',
-            paddingBottom: 'var(--space-10)',
+            paddingTop: 'var(--space-16)',
+            paddingBottom: 'var(--space-16)',
+            textAlign: 'center',
           }}
         >
-          {/* 헤드라인 */}
+          <div
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 'var(--space-2)',
+              padding: '6px 14px',
+              background: 'var(--color-success-bg)',
+              borderRadius: 99,
+              fontSize: 'var(--font-xs)',
+              fontWeight: 'var(--weight-medium)',
+              color: 'var(--color-accent)',
+              marginBottom: 'var(--space-6)',
+            }}
+          >
+            ✦ AI 기반 자동 QA 테스트
+          </div>
+
           <h1
             style={{
               fontSize: 'var(--font-2xl)',
               fontWeight: 'var(--weight-bold)',
-              color: 'var(--color-primary)',
-              lineHeight: 1.3,
+              color: 'var(--color-text-primary)',
+              lineHeight: 1.2,
+              letterSpacing: '-0.03em',
               marginBottom: 'var(--space-4)',
             }}
           >
-            AI가 실제 유저처럼
+            배포 전, AI가 먼저
             <br />
-            당신의 서비스를 테스트합니다
+            <span style={{ color: 'var(--color-accent)' }}>테스트</span>합니다
           </h1>
 
           <p
             style={{
               fontSize: 'var(--font-md)',
-              color: 'var(--color-secondary)',
+              color: 'var(--color-text-secondary)',
               marginBottom: 'var(--space-8)',
               lineHeight: 1.7,
+              maxWidth: 480,
+              marginLeft: 'auto',
+              marginRight: 'auto',
             }}
           >
-            배포하기 전 AI가 먼저 써봅니다.
+            URL 하나로 버그, UX 문제, 성능 이슈를 자동 리포트.
             <br />
-            URL 1개로 버그·UX 문제·성능 이슈를 자동 리포트.
+            실제 유저처럼 행동하는 AI가 서비스를 검증합니다.
           </p>
 
-          {/* CTA: Google 로그인 */}
+          {/* CTA */}
           <form
             action={async () => {
               'use server'
               await signIn('google', { redirectTo: '/dashboard' })
             }}
+            style={{ display: 'flex', justifyContent: 'center' }}
           >
             <button
               type="submit"
               className="btn-primary"
-              style={{ width: '100%', maxWidth: 320, fontSize: 'var(--font-md)' }}
+              style={{ fontSize: 'var(--font-md)', height: 48, padding: '0 32px' }}
             >
               Google로 무료 시작하기
             </button>
@@ -81,76 +103,146 @@ export default async function LandingPage() {
           <p
             style={{
               fontSize: 'var(--font-xs)',
-              color: 'var(--color-text-secondary)',
+              color: 'var(--color-text-tertiary)',
               marginTop: 'var(--space-3)',
             }}
           >
             신용카드 불필요 · 자신의 OpenAI/Anthropic Key 사용
           </p>
+        </div>
 
-          {/* 구분선 */}
-          <div className="divider" style={{ margin: 'var(--space-8) 0' }} />
+        <div className="divider" style={{ maxWidth: 720, margin: '0 auto' }} />
 
-          {/* 데모 리포트 미리보기 */}
-          <p className="section-header">리포트 미리보기</p>
+        {/* 데모 리포트 미리보기 */}
+        <div
+          className="container"
+          style={{ paddingTop: 'var(--space-8)', paddingBottom: 'var(--space-6)' }}
+        >
+          <p className="section-header" style={{ textAlign: 'center' }}>리포트 미리보기</p>
 
-          <div className="card" style={{ marginBottom: 'var(--space-3)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-3)' }}>
+          <div
+            className="card"
+            style={{
+              maxWidth: 520,
+              margin: '0 auto',
+              marginBottom: 'var(--space-3)',
+            }}
+          >
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginBottom: 'var(--space-4)',
+              }}
+            >
               <div>
-                <p style={{ fontWeight: 'var(--weight-bold)', fontSize: 'var(--font-lg)', color: 'var(--color-primary)' }}>
+                <p
+                  style={{
+                    fontWeight: 'var(--weight-bold)',
+                    fontSize: 'var(--font-xl)',
+                    color: 'var(--color-text-primary)',
+                  }}
+                >
                   72
-                  <span style={{ fontSize: 'var(--font-sm)', fontWeight: 'var(--weight-regular)', color: 'var(--color-text-secondary)' }}>
+                  <span
+                    style={{
+                      fontSize: 'var(--font-sm)',
+                      fontWeight: 'var(--weight-regular)',
+                      color: 'var(--color-text-tertiary)',
+                    }}
+                  >
                     {' '}/ 100
                   </span>
                 </p>
-                <p style={{ fontSize: 'var(--font-xs)', color: 'var(--color-text-secondary)' }}>
+                <p style={{ fontSize: 'var(--font-xs)', color: 'var(--color-text-tertiary)' }}>
                   myapp.com — 종합 점수
                 </p>
               </div>
-              <span className="badge badge--critical">🔴 치명 2건</span>
+              <span className="badge badge--critical">치명 2건</span>
             </div>
 
             <div
               style={{
-                background: 'var(--color-surface)',
+                background: 'var(--color-bg)',
                 borderRadius: 8,
-                padding: 'var(--space-3)',
+                padding: 'var(--space-4)',
                 fontSize: 'var(--font-sm)',
                 color: 'var(--color-text-secondary)',
-                lineHeight: 1.6,
+                lineHeight: 1.7,
+                borderLeft: '3px solid var(--color-accent)',
               }}
             >
-              💬 회원가입은 원활하나, 로그인 후 세션 관리에 치명적 문제가 있습니다. 모바일 환경에서 결제 버튼 접근이 어렵습니다.
+              회원가입은 원활하나, 로그인 후 세션 관리에 치명적 문제가 있습니다. 모바일 환경에서 결제 버튼 접근이 어렵습니다.
             </div>
           </div>
+        </div>
 
-          {/* 특징 3가지 */}
+        {/* 특징 */}
+        <div
+          className="container"
+          style={{ paddingBottom: 'var(--space-16)' }}
+        >
           <div
             style={{
               display: 'grid',
-              gap: 'var(--space-3)',
-              marginTop: 'var(--space-6)',
+              gridTemplateColumns: 'repeat(3, 1fr)',
+              gap: 'var(--space-4)',
+              maxWidth: 720,
+              margin: '0 auto',
             }}
           >
             {[
-              { icon: '🤖', title: '3가지 AI 페르소나', desc: '초보 유저, 빠른 클릭, 모바일 — 실제 사용 패턴 시뮬레이션' },
-              { icon: '📋', title: '자연어 리포트', desc: '기술 용어 없이 버그와 UX 문제를 한국어로 설명' },
-              { icon: '🛠️', title: 'AI Fix Pack (Pro)', desc: '각 버그마다 Cursor/Claude에 붙여넣을 수정 프롬프트 제공' },
-            ].map((feature) => (
+              {
+                icon: '🤖',
+                title: 'AI 페르소나',
+                desc: '초보 유저, 파워 유저, 모바일 — 실제 사용 패턴 시뮬레이션',
+              },
+              {
+                icon: '📋',
+                title: '자연어 리포트',
+                desc: '기술 용어 없이 버그와 UX 문제를 한국어로 설명',
+              },
+              {
+                icon: '⚡',
+                title: 'AI Fix Pack',
+                desc: '각 버그마다 Cursor/Claude에 붙여넣을 수정 프롬프트 제공',
+              },
+            ].map((f) => (
               <div
-                key={feature.title}
-                className="card"
-                style={{ display: 'flex', gap: 'var(--space-3)', alignItems: 'flex-start' }}
+                key={f.title}
+                style={{
+                  textAlign: 'center',
+                  padding: 'var(--space-5)',
+                }}
               >
-                <span style={{ fontSize: 24 }}>{feature.icon}</span>
-                <div>
-                  <p style={{ fontWeight: 'var(--weight-bold)', fontSize: 'var(--font-sm)', marginBottom: 4 }}>
-                    {feature.title}
-                  </p>
-                  <p style={{ fontSize: 'var(--font-xs)', color: 'var(--color-text-secondary)', lineHeight: 1.5 }}>
-                    {feature.desc}
-                  </p>
+                <div
+                  style={{
+                    fontSize: 28,
+                    marginBottom: 'var(--space-3)',
+                  }}
+                >
+                  {f.icon}
                 </div>
+                <p
+                  style={{
+                    fontWeight: 'var(--weight-semibold)',
+                    fontSize: 'var(--font-sm)',
+                    marginBottom: 'var(--space-2)',
+                    color: 'var(--color-text-primary)',
+                  }}
+                >
+                  {f.title}
+                </p>
+                <p
+                  style={{
+                    fontSize: 'var(--font-xs)',
+                    color: 'var(--color-text-secondary)',
+                    lineHeight: 1.6,
+                  }}
+                >
+                  {f.desc}
+                </p>
               </div>
             ))}
           </div>

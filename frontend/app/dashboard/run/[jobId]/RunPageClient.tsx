@@ -48,7 +48,6 @@ export default function RunPageClient({ jobId, initialJob, initialMessages, back
 
           if (updated.status === 'done') {
             clearInterval(interval)
-            // 리포트로 자동 이동 (2초 후)
             setTimeout(() => {
               router.push(`/dashboard`)
             }, 2000)
@@ -83,7 +82,7 @@ export default function RunPageClient({ jobId, initialJob, initialMessages, back
           href="/dashboard"
           style={{
             fontSize: 'var(--font-sm)',
-            color: 'var(--color-text-secondary)',
+            color: 'var(--color-text-tertiary)',
             display: 'inline-flex',
             alignItems: 'center',
             gap: 4,
@@ -96,7 +95,7 @@ export default function RunPageClient({ jobId, initialJob, initialMessages, back
           style={{
             fontSize: 'var(--font-xl)',
             fontWeight: 'var(--weight-bold)',
-            color: 'var(--color-primary)',
+            color: 'var(--color-text-primary)',
             overflow: 'hidden',
             textOverflow: 'ellipsis',
             whiteSpace: 'nowrap',
@@ -111,13 +110,13 @@ export default function RunPageClient({ jobId, initialJob, initialMessages, back
         <p
           style={{
             fontSize: 'var(--font-sm)',
-            color: isDone ? 'var(--color-secondary)' : isFailed ? 'var(--color-danger)' : 'var(--color-text-secondary)',
+            color: isDone ? 'var(--color-accent)' : isFailed ? 'var(--color-danger)' : 'var(--color-text-secondary)',
             marginBottom: 'var(--space-3)',
             fontWeight: 'var(--weight-medium)',
           }}
         >
           {STATUS_LABEL[job.status]}
-          {isActive && <span style={{ marginLeft: 6 }}>예상 완료: 1~3분</span>}
+          {isActive && <span style={{ marginLeft: 6, color: 'var(--color-text-tertiary)' }}>예상 완료: 1~3분</span>}
         </p>
 
         <ProgressBar
@@ -153,14 +152,15 @@ export default function RunPageClient({ jobId, initialJob, initialMessages, back
           ) : (
             <div
               style={{
-                background: isDone ? 'rgba(10,196,224,0.08)' : 'rgba(204,51,51,0.08)',
+                background: isDone ? 'var(--color-success-bg)' : 'var(--color-danger-bg)',
                 borderRadius: 12,
                 aspectRatio: '16/10',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                color: isDone ? 'var(--color-secondary)' : 'var(--color-danger)',
+                color: isDone ? 'var(--color-accent)' : 'var(--color-danger)',
                 fontSize: 'var(--font-md)',
+                fontWeight: 'var(--weight-medium)',
               }}
             >
               {isDone ? '✓ 테스트 완료' : '✕ 테스트 실패'}

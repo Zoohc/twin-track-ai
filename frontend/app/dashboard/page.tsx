@@ -1,7 +1,7 @@
 import { auth } from '@/auth'
 import { redirect } from 'next/navigation'
 import { AppBar } from '@/components/layout/AppBar'
-import { listPersonas, listReports } from '@/lib/api'
+import { listPersonas, listReports, getProfile } from '@/lib/api'
 import DashboardClient from './DashboardClient'
 import type { Persona, Report, PaginatedResponse } from '@/types'
 
@@ -11,12 +11,17 @@ export default async function DashboardPage() {
 
   let personas: Persona[] = []
   let initialReports: PaginatedResponse<Report> = { items: [], next_cursor: null, has_next: false }
+  let hasApiKey = false
 
   try {
-    [personas, initialReports] = await Promise.all([
+    const [personasData, reportsData, profile] = await Promise.all([
       listPersonas(session.userId),
       listReports(session.userId, 20),
+      getProfile(session.userId),
     ])
+    personas = personasData
+    initialReports = reportsData
+    hasApiKey = !!profile.llm_provider
   } catch {
     // 에러 무시, 빈 상태로 렌더링
   }
@@ -29,6 +34,7 @@ export default async function DashboardPage() {
           personas={personas}
           initialReports={initialReports}
           userId={session.userId}
+          hasApiKey={hasApiKey}
         />
       </main>
     </div>

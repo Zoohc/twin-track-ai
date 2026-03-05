@@ -5,21 +5,14 @@ import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Card } from '@/components/ui/Card'
-import { createJobAction } from '@/lib/actions'
+import { createJobAction, saveApiKeyAction } from '@/lib/actions'
 import { listReports } from '@/lib/api'
-import type { Persona, Report, PaginatedResponse, JobStatus } from '@/types'
-
-const STATUS_ICON: Record<JobStatus, string> = {
-  queued: '⏳',
-  running: '⏳',
-  done: '🟢',
-  failed: '🔴',
-}
+import type { Persona, Report, PaginatedResponse, LLMProvider } from '@/types'
 
 function getScoreColor(score: number | null): string {
   if (score === null) return 'var(--color-text-secondary)'
-  if (score >= 80) return 'var(--color-secondary)'
-  if (score >= 50) return '#B07800'
+  if (score >= 80) return 'var(--color-accent)'
+  if (score >= 50) return 'var(--color-warning)'
   return 'var(--color-danger)'
 }
 
@@ -38,16 +31,24 @@ interface Props {
   personas: Persona[]
   initialReports: PaginatedResponse<Report>
   userId: string
+  hasApiKey: boolean
 }
 
-export default function DashboardClient({ personas, initialReports, userId }: Props) {
+export default function DashboardClient({ personas, initialReports, userId, hasApiKey: initialHasApiKey }: Props) {
   const [url, setUrl] = useState('')
   const [selectedPersonaIds, setSelectedPersonaIds] = useState<string[]>([])
   const [urlError, setUrlError] = useState('')
   const [isPending, startTransition] = useTransition()
   const router = useRouter()
 
-  // 리포트 목록 (무한 스크롤)
+  // API Key 상태
+  const [hasApiKey, setHasApiKey] = useState(initialHasApiKey)
+  const [provider, setProvider] = useState<LLMProvider>('openai')
+  const [apiKey, setApiKey] = useState('')
+  const [apiKeyError, setApiKeyError] = useState('')
+  const [isSavingKey, startSaveKeyTransition] = useTransition()
+
+  // 리포트 목록
   const [reports, setReports] = useState<Report[]>(initialReports.items)
   const [cursor, setCursor] = useState<string | null>(initialReports.next_cursor)
   const [hasNext, setHasNext] = useState(initialReports.has_next)
@@ -92,6 +93,31 @@ export default function DashboardClient({ personas, initialReports, userId }: Pr
     })
   }
 
+  function handleSaveApiKey(e: React.FormEvent) {
+    e.preventDefault()
+    setApiKeyError('')
+
+    if (!apiKey.trim()) {
+      setApiKeyError('API Key를 입력해주세요')
+      return
+    }
+
+    if (provider === 'openai' && !apiKey.startsWith('sk-')) {
+      setApiKeyError('OpenAI API Key는 sk- 로 시작해야 합니다')
+      return
+    }
+
+    startSaveKeyTransition(async () => {
+      try {
+        await saveApiKeyAction(provider, apiKey.trim())
+        setHasApiKey(true)
+        setApiKey('')
+      } catch {
+        setApiKeyError('저장에 실패했습니다. 다시 시도해주세요.')
+      }
+    })
+  }
+
   async function loadMore() {
     if (!cursor || loadingMore) return
     setLoadingMore(true)
@@ -109,11 +135,89 @@ export default function DashboardClient({ personas, initialReports, userId }: Pr
 
   return (
     <>
+      {/* API Key 미설정 배너 */}
+      {!hasApiKey && (
+        <section style={{ marginBottom: 'var(--space-6)' }}>
+          <Card>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 'var(--space-3)',
+                marginBottom: 'var(--space-4)',
+                padding: 'var(--space-3) var(--space-4)',
+                background: 'var(--color-success-bg)',
+                borderRadius: 8,
+                borderLeft: '3px solid var(--color-accent)',
+              }}
+            >
+              <span style={{ fontSize: 18 }}>🔑</span>
+              <div>
+                <p
+                  style={{
+                    fontSize: 'var(--font-sm)',
+                    fontWeight: 'var(--weight-semibold)',
+                    color: 'var(--color-text-primary)',
+                  }}
+                >
+                  테스트를 시작하려면 API Key가 필요합니다
+                </p>
+                <p style={{ fontSize: 'var(--font-xs)', color: 'var(--color-text-secondary)' }}>
+                  키는 암호화되어 안전하게 저장됩니다 · 테스트 비용은 사용자 계정에서 직접 청구
+                </p>
+              </div>
+            </div>
+
+            <form onSubmit={handleSaveApiKey} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
+              {/* Provider 선택 */}
+              <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
+                {(['openai', 'anthropic'] as LLMProvider[]).map((p) => (
+                  <button
+                    key={p}
+                    type="button"
+                    onClick={() => setProvider(p)}
+                    style={{
+                      flex: 1,
+                      padding: 'var(--space-3)',
+                      border: `1.5px solid ${provider === p ? 'var(--color-accent)' : 'var(--color-border)'}`,
+                      borderRadius: 8,
+                      background: provider === p ? 'var(--color-success-bg)' : 'var(--color-surface)',
+                      color: provider === p ? 'var(--color-accent)' : 'var(--color-text-secondary)',
+                      fontSize: 'var(--font-sm)',
+                      fontWeight: provider === p ? 'var(--weight-medium)' : 'var(--weight-regular)',
+                      cursor: 'pointer',
+                      fontFamily: 'inherit',
+                      transition: 'all 150ms ease',
+                    }}
+                  >
+                    {p === 'openai' ? 'OpenAI' : 'Anthropic'}
+                  </button>
+                ))}
+              </div>
+
+              <Input
+                type="password"
+                placeholder={provider === 'openai' ? 'sk-...' : 'sk-ant-...'}
+                value={apiKey}
+                onChange={(e) => setApiKey(e.target.value)}
+                error={!!apiKeyError}
+                hint={apiKeyError}
+                autoComplete="off"
+              />
+
+              <Button type="submit" disabled={isSavingKey} fullWidth>
+                {isSavingKey ? '저장 중...' : 'API Key 저장하고 시작하기'}
+              </Button>
+            </form>
+          </Card>
+        </section>
+      )}
+
       {/* 새 테스트 섹션 */}
       <section style={{ marginBottom: 'var(--space-8)' }}>
         <p className="section-header">새 테스트 시작</p>
 
-        <Card>
+        <Card style={!hasApiKey ? { opacity: 0.5, pointerEvents: 'none' } : undefined}>
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
             <Input
               placeholder="https://myapp.com"
@@ -141,13 +245,14 @@ export default function DashboardClient({ personas, initialReports, userId }: Pr
                         style={{
                           padding: '6px 14px',
                           borderRadius: 99,
-                          border: `1.5px solid ${selected ? 'var(--color-primary)' : '#D0D0D0'}`,
-                          background: selected ? 'rgba(11,45,114,0.08)' : 'var(--color-white)',
-                          color: selected ? 'var(--color-primary)' : 'var(--color-text-secondary)',
+                          border: `1.5px solid ${selected ? 'var(--color-accent)' : 'var(--color-border)'}`,
+                          background: selected ? 'var(--color-success-bg)' : 'var(--color-surface)',
+                          color: selected ? 'var(--color-accent)' : 'var(--color-text-secondary)',
                           fontSize: 'var(--font-xs)',
                           fontWeight: selected ? 'var(--weight-medium)' : 'var(--weight-regular)',
                           cursor: 'pointer',
                           fontFamily: 'inherit',
+                          transition: 'all 150ms ease',
                         }}
                       >
                         {p.name}
@@ -158,7 +263,7 @@ export default function DashboardClient({ personas, initialReports, userId }: Pr
               </div>
             )}
 
-            <Button type="submit" disabled={isPending} fullWidth>
+            <Button type="submit" disabled={isPending || !hasApiKey} fullWidth>
               {isPending ? '테스트 시작 중...' : '테스트 시작'}
             </Button>
           </form>
@@ -196,14 +301,20 @@ export default function DashboardClient({ personas, initialReports, userId }: Pr
                     alignItems: 'center',
                     gap: 'var(--space-3)',
                     cursor: 'pointer',
-                    transition: 'box-shadow 0.15s ease',
+                    transition: 'box-shadow 150ms ease',
                   }}
                 >
-                  <span style={{ fontSize: 20 }}>
-                    {report.score !== null
-                      ? report.score >= 80 ? '🟢' : report.score >= 50 ? '🟡' : '🔴'
-                      : '⏳'}
-                  </span>
+                  <span
+                    style={{
+                      width: 10,
+                      height: 10,
+                      borderRadius: '50%',
+                      background: report.score !== null
+                        ? report.score >= 80 ? 'var(--color-accent)' : report.score >= 50 ? 'var(--color-warning)' : 'var(--color-danger)'
+                        : 'var(--color-text-tertiary)',
+                      flexShrink: 0,
+                    }}
+                  />
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <p
                       style={{
@@ -217,7 +328,7 @@ export default function DashboardClient({ personas, initialReports, userId }: Pr
                     >
                       {report.url}
                     </p>
-                    <p style={{ fontSize: 'var(--font-xs)', color: 'var(--color-text-secondary)' }}>
+                    <p style={{ fontSize: 'var(--font-xs)', color: 'var(--color-text-tertiary)' }}>
                       {timeAgo(report.created_at)}
                     </p>
                   </div>

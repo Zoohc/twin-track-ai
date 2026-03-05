@@ -58,6 +58,7 @@ function ApiKeySettings() {
               style={{
                 fontSize: 'var(--font-sm)',
                 fontWeight: 'var(--weight-medium)',
+                color: 'var(--color-text-primary)',
                 marginBottom: 'var(--space-2)',
               }}
             >
@@ -72,14 +73,15 @@ function ApiKeySettings() {
                   style={{
                     flex: 1,
                     padding: 'var(--space-3)',
-                    border: `1.5px solid ${provider === p ? 'var(--color-primary)' : '#D0D0D0'}`,
+                    border: `1.5px solid ${provider === p ? 'var(--color-accent)' : 'var(--color-border)'}`,
                     borderRadius: 8,
-                    background: provider === p ? 'rgba(11,45,114,0.06)' : 'var(--color-white)',
-                    color: provider === p ? 'var(--color-primary)' : 'var(--color-text-secondary)',
+                    background: provider === p ? 'var(--color-success-bg)' : 'var(--color-surface)',
+                    color: provider === p ? 'var(--color-accent)' : 'var(--color-text-secondary)',
                     fontSize: 'var(--font-sm)',
                     fontWeight: provider === p ? 'var(--weight-medium)' : 'var(--weight-regular)',
                     cursor: 'pointer',
                     fontFamily: 'inherit',
+                    transition: 'all 150ms ease',
                   }}
                 >
                   {p === 'openai' ? 'OpenAI' : 'Anthropic'}
@@ -117,7 +119,7 @@ function PlanSection() {
       <Card>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
-            <p style={{ fontWeight: 'var(--weight-medium)', marginBottom: 4 }}>Free 플랜</p>
+            <p style={{ fontWeight: 'var(--weight-medium)', color: 'var(--color-text-primary)', marginBottom: 4 }}>Free 플랜</p>
             <p style={{ fontSize: 'var(--font-sm)', color: 'var(--color-text-secondary)' }}>
               기본 3개 페르소나 · 자연어 리포트
             </p>
@@ -135,13 +137,13 @@ function PlanSection() {
 
         <div
           style={{
-            background: 'var(--color-surface)',
+            background: 'var(--color-bg)',
             borderRadius: 8,
             padding: 'var(--space-4)',
           }}
         >
-          <p style={{ fontSize: 'var(--font-sm)', fontWeight: 'var(--weight-medium)', marginBottom: 'var(--space-2)' }}>
-            🛠️ Pro 플랜 ($19/월)
+          <p style={{ fontSize: 'var(--font-sm)', fontWeight: 'var(--weight-medium)', color: 'var(--color-text-primary)', marginBottom: 'var(--space-2)' }}>
+            Pro 플랜 ($19/월)
           </p>
           <ul
             style={{

@@ -40,13 +40,13 @@ export default function OnboardingPage() {
 
   return (
     <div className="page">
-      <div className="container" style={{ paddingTop: 'var(--space-10)' }}>
+      <div className="container" style={{ paddingTop: 'var(--space-10)', maxWidth: 480 }}>
         {/* 스텝 인디케이터 */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', marginBottom: 'var(--space-8)' }}>
           <div
             style={{
               width: 24, height: 24, borderRadius: '50%',
-              background: 'var(--color-text-secondary)',
+              background: 'var(--color-accent)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               fontSize: 'var(--font-xs)', color: 'var(--color-white)',
               fontWeight: 'var(--weight-bold)',
@@ -54,11 +54,11 @@ export default function OnboardingPage() {
           >
             ✓
           </div>
-          <div style={{ height: 2, flex: 1, background: 'var(--color-text-secondary)' }} />
+          <div style={{ height: 2, flex: 1, background: 'var(--color-accent)' }} />
           <div
             style={{
               width: 24, height: 24, borderRadius: '50%',
-              background: 'var(--color-primary)',
+              background: 'var(--color-text-primary)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               fontSize: 'var(--font-xs)', color: 'var(--color-white)',
               fontWeight: 'var(--weight-bold)',
@@ -72,7 +72,7 @@ export default function OnboardingPage() {
           style={{
             fontSize: 'var(--font-xl)',
             fontWeight: 'var(--weight-bold)',
-            color: 'var(--color-primary)',
+            color: 'var(--color-text-primary)',
             marginBottom: 'var(--space-2)',
           }}
         >
@@ -107,10 +107,11 @@ export default function OnboardingPage() {
                   alignItems: 'center',
                   gap: 'var(--space-3)',
                   padding: 'var(--space-4)',
-                  background: provider === option.id ? 'rgba(11,45,114,0.06)' : 'var(--color-white)',
-                  border: `1.5px solid ${provider === option.id ? 'var(--color-primary)' : '#D0D0D0'}`,
+                  background: provider === option.id ? 'var(--color-success-bg)' : 'var(--color-surface)',
+                  border: `1.5px solid ${provider === option.id ? 'var(--color-accent)' : 'var(--color-border)'}`,
                   borderRadius: 8,
                   cursor: 'pointer',
+                  transition: 'all 150ms ease',
                 }}
               >
                 <input
@@ -119,17 +120,17 @@ export default function OnboardingPage() {
                   value={option.id}
                   checked={provider === option.id}
                   onChange={() => setProvider(option.id)}
-                  style={{ accentColor: 'var(--color-primary)' }}
+                  style={{ accentColor: 'var(--color-accent)' }}
                 />
                 <div>
-                  <span style={{ fontSize: 'var(--font-md)', fontWeight: 'var(--weight-medium)' }}>
+                  <span style={{ fontSize: 'var(--font-md)', fontWeight: 'var(--weight-medium)', color: 'var(--color-text-primary)' }}>
                     {option.label}
                   </span>
                   {option.hint && (
                     <span
                       style={{
                         fontSize: 'var(--font-xs)',
-                        color: 'var(--color-secondary)',
+                        color: 'var(--color-accent)',
                         marginLeft: 'var(--space-2)',
                       }}
                     >
@@ -149,12 +150,12 @@ export default function OnboardingPage() {
             value={apiKey}
             onChange={(e) => setApiKey(e.target.value)}
             error={!!error}
-            hint={error || '🔒 AES-256으로 암호화되어 저장됩니다'}
+            hint={error || 'AES-256으로 암호화되어 저장됩니다'}
             autoComplete="off"
           />
 
           <Button type="submit" disabled={isPending} fullWidth>
-            {isPending ? '저장 중...' : '저장하고 시작하기 →'}
+            {isPending ? '저장 중...' : '저장하고 시작하기'}
           </Button>
         </form>
 
@@ -164,8 +165,7 @@ export default function OnboardingPage() {
             href="/dashboard"
             style={{
               fontSize: 'var(--font-sm)',
-              color: 'var(--color-text-secondary)',
-              textDecoration: 'underline',
+              color: 'var(--color-text-tertiary)',
             }}
           >
             나중에 설정하기

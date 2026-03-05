@@ -16,7 +16,7 @@ export default async function SettingsPage() {
           href="/dashboard"
           style={{
             fontSize: 'var(--font-sm)',
-            color: 'var(--color-text-secondary)',
+            color: 'var(--color-text-tertiary)',
             display: 'inline-flex',
             alignItems: 'center',
             gap: 4,
@@ -30,7 +30,7 @@ export default async function SettingsPage() {
           style={{
             fontSize: 'var(--font-xl)',
             fontWeight: 'var(--weight-bold)',
-            color: 'var(--color-primary)',
+            color: 'var(--color-text-primary)',
             marginBottom: 'var(--space-6)',
           }}
         >
