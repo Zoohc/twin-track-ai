@@ -44,7 +44,6 @@ async def create_job(
                 "persona_ids": persona_ids,
             }
         )
-        .select("id")
         .execute()
     )
 

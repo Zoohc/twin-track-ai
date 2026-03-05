@@ -67,8 +67,6 @@ async def create_persona(
                 "is_default": False,
             }
         )
-        .select("*")
-        .single()
         .execute()
     )
 
