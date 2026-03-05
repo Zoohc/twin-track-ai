@@ -43,6 +43,10 @@ async def run_persona_test(
             api_key=api_key,  # type: ignore[arg-type]
         )
 
+    # browser-use Agent가 llm.provider 속성을 참조하므로 없으면 추가
+    if not hasattr(llm, "provider"):
+        llm.provider = provider  # type: ignore[attr-defined]
+
     logs: list[str] = []
 
     async def _log(msg: str, level: str = "info") -> None:
