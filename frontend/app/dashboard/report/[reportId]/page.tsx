@@ -6,6 +6,7 @@ import { getReport } from '@/lib/api'
 import { Badge } from '@/components/ui/Badge'
 import { IssueCard } from '@/components/IssueCard'
 import type { IssueSeverity } from '@/types'
+import { ProBanner } from './ProBanner'
 
 interface PageProps {
   params: Promise<{ reportId: string }>
@@ -168,45 +169,7 @@ export default async function ReportPage({ params }: PageProps) {
         )}
 
         {/* Pro 업그레이드 배너 (Free 유저) */}
-        {!isPro && criticalIssues.length > 0 && (
-          <div
-            className="card"
-            style={{
-              marginTop: 'var(--space-6)',
-              textAlign: 'center',
-              borderTop: '3px solid var(--color-accent)',
-            }}
-          >
-            <p
-              style={{
-                fontSize: 'var(--font-md)',
-                fontWeight: 'var(--weight-bold)',
-                color: 'var(--color-text-primary)',
-                marginBottom: 'var(--space-2)',
-              }}
-            >
-              AI 수정 프롬프트로 즉시 수정하세요
-            </p>
-            <p
-              style={{
-                fontSize: 'var(--font-sm)',
-                color: 'var(--color-text-secondary)',
-                marginBottom: 'var(--space-4)',
-              }}
-            >
-              Pro 플랜에서는 각 버그마다 Cursor/Claude에 붙여넣을 수 있는
-              <br />
-              AI 수정 프롬프트를 제공합니다.
-            </p>
-            <button
-              onClick={() => alert('결제 기능은 준비 중입니다.')}
-              className="btn-primary"
-              style={{ maxWidth: 240 }}
-            >
-              Pro 업그레이드 ($19/월)
-            </button>
-          </div>
-        )}
+        {!isPro && criticalIssues.length > 0 && <ProBanner />}
 
         {/* 비디오 레코딩 */}
         {report.video_url && (
