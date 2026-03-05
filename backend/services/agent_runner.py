@@ -62,6 +62,11 @@ async def run_persona_test(
     else:
         llm = _make_flexible_openai(api_key)
 
+    # browser-use Agent가 llm.provider 속성을 읽으므로 미리 설정
+    # (extra="allow" 서브클래스이므로 setattr이 정상 동작)
+    if not hasattr(llm, "provider"):
+        llm.provider = provider  # type: ignore[attr-defined]
+
     logs: list[str] = []
 
     async def _log(msg: str, level: str = "info") -> None:
