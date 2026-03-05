@@ -43,8 +43,12 @@ async def run_persona_test(
             api_key=api_key,  # type: ignore[arg-type]
         )
 
-    # browser-use Agent가 llm.provider 속성을 참조하므로 없으면 추가
-    # Pydantic 모델은 정의되지 않은 필드에 직접 할당 불가 → object.__setattr__ 사용
+    # browser-use Agent가 llm에 동적 속성(provider, ainvoke 등)을 설정하므로
+    # Pydantic v2 모델이 extra fields를 허용하도록 설정
+    if hasattr(llm.__class__, "model_config"):
+        llm.__class__.model_config["extra"] = "allow"
+
+    # provider 속성 추가 (browser-use Agent가 참조)
     if not hasattr(llm, "provider"):
         object.__setattr__(llm, "provider", provider)
 
