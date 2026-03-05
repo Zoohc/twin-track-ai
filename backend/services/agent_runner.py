@@ -3,20 +3,22 @@ import asyncio
 import logging
 from typing import Callable, Awaitable
 
-from pydantic import ConfigDict
-
 logger = logging.getLogger(__name__)
 
 
 # browser-use Agent가 llm 객체에 동적 속성(ainvoke, provider, _verified_api_keys 등)을
 # setattr()로 설정합니다. Pydantic v2 모델은 기본적으로 unknown field 할당을 거부하므로,
-# extra="allow"를 설정한 서브클래스를 사용해야 합니다.
+# 부모의 model_config를 상속하면서 extra="allow"만 추가한 서브클래스를 사용합니다.
+#
+# 주의: ConfigDict(extra="allow")로 통째로 덮어쓰면 부모의 populate_by_name,
+# arbitrary_types_allowed 등이 사라져서 model/model_name alias가 깨집니다.
+# 반드시 {**Parent.model_config, "extra": "allow"} 패턴으로 병합해야 합니다.
 def _make_flexible_openai(api_key: str):
     """ChatOpenAI의 extra-allow 서브클래스를 생성하여 반환."""
     from langchain_openai import ChatOpenAI
 
     class FlexibleChatOpenAI(ChatOpenAI):
-        model_config = ConfigDict(extra="allow")
+        model_config = {**ChatOpenAI.model_config, "extra": "allow"}
 
     return FlexibleChatOpenAI(model="gpt-4o", api_key=api_key)  # type: ignore[arg-type]
 
@@ -26,7 +28,7 @@ def _make_flexible_anthropic(api_key: str):
     from langchain_anthropic import ChatAnthropic
 
     class FlexibleChatAnthropic(ChatAnthropic):
-        model_config = ConfigDict(extra="allow")
+        model_config = {**ChatAnthropic.model_config, "extra": "allow"}
 
     return FlexibleChatAnthropic(
         model="claude-3-5-sonnet-20241022", api_key=api_key  # type: ignore[arg-type]
