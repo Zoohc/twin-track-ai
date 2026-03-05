@@ -44,8 +44,9 @@ async def run_persona_test(
         )
 
     # browser-use Agent가 llm.provider 속성을 참조하므로 없으면 추가
+    # Pydantic 모델은 정의되지 않은 필드에 직접 할당 불가 → object.__setattr__ 사용
     if not hasattr(llm, "provider"):
-        llm.provider = provider  # type: ignore[attr-defined]
+        object.__setattr__(llm, "provider", provider)
 
     logs: list[str] = []
 
