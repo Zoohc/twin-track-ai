@@ -3,7 +3,34 @@ import asyncio
 import logging
 from typing import Callable, Awaitable
 
+from pydantic import ConfigDict
+
 logger = logging.getLogger(__name__)
+
+
+# browser-use Agent가 llm 객체에 동적 속성(ainvoke, provider, _verified_api_keys 등)을
+# setattr()로 설정합니다. Pydantic v2 모델은 기본적으로 unknown field 할당을 거부하므로,
+# extra="allow"를 설정한 서브클래스를 사용해야 합니다.
+def _make_flexible_openai(api_key: str):
+    """ChatOpenAI의 extra-allow 서브클래스를 생성하여 반환."""
+    from langchain_openai import ChatOpenAI
+
+    class FlexibleChatOpenAI(ChatOpenAI):
+        model_config = ConfigDict(extra="allow")
+
+    return FlexibleChatOpenAI(model="gpt-4o", api_key=api_key)  # type: ignore[arg-type]
+
+
+def _make_flexible_anthropic(api_key: str):
+    """ChatAnthropic의 extra-allow 서브클래스를 생성하여 반환."""
+    from langchain_anthropic import ChatAnthropic
+
+    class FlexibleChatAnthropic(ChatAnthropic):
+        model_config = ConfigDict(extra="allow")
+
+    return FlexibleChatAnthropic(
+        model="claude-3-5-sonnet-20241022", api_key=api_key  # type: ignore[arg-type]
+    )
 
 
 async def run_persona_test(
@@ -31,26 +58,9 @@ async def run_persona_test(
     from browser_use import Agent
 
     if provider == "anthropic":
-        from langchain_anthropic import ChatAnthropic
-        llm = ChatAnthropic(
-            model="claude-3-5-sonnet-20241022",
-            api_key=api_key,  # type: ignore[arg-type]
-        )
+        llm = _make_flexible_anthropic(api_key)
     else:
-        from langchain_openai import ChatOpenAI
-        llm = ChatOpenAI(
-            model="gpt-4o",
-            api_key=api_key,  # type: ignore[arg-type]
-        )
-
-    # browser-use Agent가 llm에 동적 속성(provider, ainvoke 등)을 설정하므로
-    # Pydantic v2 모델이 extra fields를 허용하도록 설정
-    if hasattr(llm.__class__, "model_config"):
-        llm.__class__.model_config["extra"] = "allow"
-
-    # provider 속성 추가 (browser-use Agent가 참조)
-    if not hasattr(llm, "provider"):
-        object.__setattr__(llm, "provider", provider)
+        llm = _make_flexible_openai(api_key)
 
     logs: list[str] = []
 
