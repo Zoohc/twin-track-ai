@@ -107,7 +107,7 @@ export default function OnboardingPage() {
                   alignItems: 'center',
                   gap: 'var(--space-3)',
                   padding: 'var(--space-4)',
-                  background: provider === option.id ? 'var(--color-success-bg)' : 'var(--color-surface)',
+                  background: provider === option.id ? 'var(--color-accent-subtle)' : 'var(--color-surface)',
                   border: `1.5px solid ${provider === option.id ? 'var(--color-accent)' : 'var(--color-border)'}`,
                   borderRadius: 8,
                   cursor: 'pointer',

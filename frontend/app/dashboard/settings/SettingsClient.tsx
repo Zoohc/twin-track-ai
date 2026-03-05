@@ -75,7 +75,7 @@ function ApiKeySettings() {
                     padding: 'var(--space-3)',
                     border: `1.5px solid ${provider === p ? 'var(--color-accent)' : 'var(--color-border)'}`,
                     borderRadius: 8,
-                    background: provider === p ? 'var(--color-success-bg)' : 'var(--color-surface)',
+                    background: provider === p ? 'var(--color-accent-subtle)' : 'var(--color-surface)',
                     color: provider === p ? 'var(--color-accent)' : 'var(--color-text-secondary)',
                     fontSize: 'var(--font-sm)',
                     fontWeight: provider === p ? 'var(--weight-medium)' : 'var(--weight-regular)',

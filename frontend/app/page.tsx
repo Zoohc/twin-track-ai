@@ -41,7 +41,7 @@ export default async function LandingPage() {
               alignItems: 'center',
               gap: 'var(--space-2)',
               padding: '6px 14px',
-              background: 'var(--color-success-bg)',
+              background: 'var(--color-accent-subtle)',
               borderRadius: 99,
               fontSize: 'var(--font-xs)',
               fontWeight: 'var(--weight-medium)',
