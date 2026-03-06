@@ -136,13 +136,27 @@ async def run_persona_test(
         agent = Agent(
             task=system_prompt,
             llm=llm,
+            max_failures=10,         # 기본 5 → 10으로 증가 (파싱 재시도 여유)
+            max_actions_per_step=3,  # 스텝당 동시 액션 제한
         )
 
         # browser-use Agent 실행
-        result = await agent.run()
+        history = await agent.run()
 
-        final_result = str(result) if result else "테스트 완료 (결과 없음)"
-        await _log(f"[{persona['name']}] 완료: {final_result[:200]}", "success")
+        # AgentHistoryList에서 결과 추출
+        if history and history.is_done():
+            final_result = history.final_result() if hasattr(history, 'final_result') else str(history)
+        elif history:
+            # 완료 신호 없이 끝난 경우에도 히스토리에서 정보 추출
+            try:
+                thoughts = history.model_thoughts() if hasattr(history, 'model_thoughts') else []
+                final_result = "\n".join(str(t) for t in thoughts) if thoughts else str(history)
+            except Exception:
+                final_result = str(history)
+        else:
+            final_result = "테스트 완료 (결과 없음)"
+
+        await _log(f"[{persona['name']}] 완료: {final_result[:300]}", "success")
         logs.append(final_result)
 
     except Exception as exc:

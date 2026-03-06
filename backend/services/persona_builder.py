@@ -44,20 +44,18 @@ DEFAULT_PERSONAS: list[dict[str, str]] = [
 
 
 def build_system_prompt(persona: dict[str, str], target_url: str) -> str:
-    """페르소나 + 타겟 URL → LLM 주입용 시스템 프롬프트 생성."""
+    """페르소나 + 타겟 URL → browser-use Agent 태스크 생성.
+
+    browser-use Agent의 task는 브라우저 액션 중심의 간결한 지시문이어야 합니다.
+    복잡한 분석/요약 지시는 agent가 액션 파싱에 실패하게 만듭니다.
+    """
     base = persona["system_prompt"]
-    return f"""{base}
-
-Target URL: {target_url}
-Language: Korean
-
-After exploring, summarize:
-1. 🔴 Critical bugs (broken functionality)
-2. 🟡 UX issues (confusing, slow, or frustrating)
-3. 🟢 What works well
-4. Your personal feedback as this type of user
-
-Be specific. Include reproduction steps for bugs."""
+    return (
+        f"Go to {target_url} and explore the website as described below.\n\n"
+        f"{base}\n\n"
+        f"Navigate the site, click links and buttons, try the main features. "
+        f"After exploring, use the done action to report what you found."
+    )
 
 
 def get_persona_by_id(persona_id: str) -> dict[str, str] | None:
