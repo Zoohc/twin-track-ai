@@ -1,37 +1,66 @@
 from __future__ import annotations
-import asyncio
+
 import logging
 from typing import Callable, Awaitable
 
 logger = logging.getLogger(__name__)
 
 
-# browser-use Agent가 llm 객체에 동적 속성(ainvoke, provider, _verified_api_keys 등)을
-# setattr()로 설정합니다. Pydantic v2 모델은 기본적으로 unknown field 할당을 거부하므로,
-# 부모의 model_config를 상속하면서 extra="allow"만 추가한 서브클래스를 사용합니다.
+# ── Pydantic v2 동적 속성 허용 패치 ──────────────────────────────────────────
 #
-# 주의: ConfigDict(extra="allow")로 통째로 덮어쓰면 부모의 populate_by_name,
-# arbitrary_types_allowed 등이 사라져서 model/model_name alias가 깨집니다.
-# 반드시 {**Parent.model_config, "extra": "allow"} 패턴으로 병합해야 합니다.
+# browser-use Agent는 llm 객체에 ainvoke, provider, _verified_api_keys 등을
+# setattr()로 동적 설정합니다. Pydantic v2는 기본적으로 이를 거부합니다.
+#
+# [이전 시도: 서브클래스 방식]
+#   class Flexible(ChatOpenAI):
+#       model_config = {**ChatOpenAI.model_config, "extra": "allow"}
+#   → Pydantic v2가 서브클래스 스키마를 재컴파일하면서 model/model_name
+#     field alias가 깨짐 (populate_by_name, protected_namespaces 등 유실)
+#
+# [현재 해결: __setattr__ 패치 방식]
+#   원본 ChatOpenAI 클래스의 __setattr__만 래핑하여, Pydantic이 거부하는
+#   속성은 object.__setattr__로 fallback. 서브클래스 없음 → 스키마 재컴파일 없음
+#   → model 필드 및 모든 alias가 정상 동작.
+
+
+def _patch_setattr(cls) -> None:
+    """
+    Pydantic v2 모델 클래스의 __setattr__를 패치하여 동적 속성 할당을 허용합니다.
+
+    - browser-use가 설정하는 동적 속성 (ainvoke, provider 등)이 거부되지 않도록 함
+    - 기존 Pydantic 필드의 validation은 그대로 유지
+    - 한 번만 패치 (idempotent)
+    """
+    if getattr(cls, '_patched_flexible_setattr', False):
+        return
+
+    _original = cls.__setattr__
+
+    def _flexible_setattr(self, name, value):
+        try:
+            _original(self, name, value)
+        except (ValueError, AttributeError):
+            object.__setattr__(self, name, value)
+
+    cls.__setattr__ = _flexible_setattr
+    cls._patched_flexible_setattr = True
+
+
 def _make_flexible_openai(api_key: str):
-    """ChatOpenAI의 extra-allow 서브클래스를 생성하여 반환."""
+    """ChatOpenAI 인스턴스를 생성하고 동적 속성 할당을 허용합니다."""
     from langchain_openai import ChatOpenAI
 
-    class FlexibleChatOpenAI(ChatOpenAI):
-        model_config = {**ChatOpenAI.model_config, "extra": "allow"}
-
-    return FlexibleChatOpenAI(model="gpt-4o", api_key=api_key)  # type: ignore[arg-type]
+    _patch_setattr(ChatOpenAI)
+    return ChatOpenAI(model="gpt-4o", api_key=api_key)
 
 
 def _make_flexible_anthropic(api_key: str):
-    """ChatAnthropic의 extra-allow 서브클래스를 생성하여 반환."""
+    """ChatAnthropic 인스턴스를 생성하고 동적 속성 할당을 허용합니다."""
     from langchain_anthropic import ChatAnthropic
 
-    class FlexibleChatAnthropic(ChatAnthropic):
-        model_config = {**ChatAnthropic.model_config, "extra": "allow"}
-
-    return FlexibleChatAnthropic(
-        model="claude-3-5-sonnet-20241022", api_key=api_key  # type: ignore[arg-type]
+    _patch_setattr(ChatAnthropic)
+    return ChatAnthropic(
+        model="claude-3-5-sonnet-20241022", api_key=api_key
     )
 
 
@@ -65,7 +94,7 @@ async def run_persona_test(
         llm = _make_flexible_openai(api_key)
 
     # browser-use Agent가 llm.provider 속성을 읽으므로 미리 설정
-    # (extra="allow" 서브클래스이므로 setattr이 정상 동작)
+    # (_patch_setattr 덕분에 setattr이 정상 동작)
     if not hasattr(llm, "provider"):
         llm.provider = provider  # type: ignore[attr-defined]
 
