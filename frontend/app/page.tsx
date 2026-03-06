@@ -170,7 +170,7 @@ export default async function LandingPage() {
                 fontSize: 'var(--font-sm)',
                 color: 'var(--color-text-secondary)',
                 lineHeight: 1.7,
-                borderLeft: '3px solid var(--color-accent)',
+                boxShadow: 'var(--shadow-sm)',
               }}
             >
               회원가입은 원활하나, 로그인 후 세션 관리에 치명적 문제가 있습니다. 모바일 환경에서 결제 버튼 접근이 어렵습니다.

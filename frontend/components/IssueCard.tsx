@@ -86,9 +86,8 @@ export function IssueCard({ issue, isPro }: IssueCardProps) {
           style={{
             marginTop: 'var(--space-3)',
             padding: 'var(--space-3)',
-            background: 'var(--color-surface)',
+            background: 'var(--color-surface-raised)',
             borderRadius: 8,
-            borderLeft: '3px solid var(--color-primary)',
           }}
         >
           <p
@@ -126,7 +125,7 @@ export function IssueCard({ issue, isPro }: IssueCardProps) {
           style={{
             marginTop: 'var(--space-3)',
             padding: 'var(--space-3)',
-            background: '#F0F0F0',
+            background: 'var(--color-surface-raised)',
             borderRadius: 8,
             cursor: 'not-allowed',
           }}

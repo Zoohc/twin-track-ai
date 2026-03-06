@@ -123,13 +123,13 @@ export default async function ReportPage({ params }: PageProps) {
             <p className="section-header">AI 총평</p>
             <div
               style={{
-                background: 'var(--color-surface)',
-                borderRadius: 8,
-                padding: 'var(--space-4)',
+                background: 'var(--color-surface-raised)',
+                borderRadius: 12,
+                padding: 'var(--space-5)',
                 fontSize: 'var(--font-sm)',
                 color: 'var(--color-text-secondary)',
                 lineHeight: 1.7,
-                borderLeft: '3px solid var(--color-accent)',
+                boxShadow: 'var(--shadow-sm)',
               }}
             >
               {report.summary}

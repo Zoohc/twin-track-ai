@@ -14,9 +14,9 @@ export async function AppBar({ showNav = true }: AppBarProps) {
         href={session ? '/dashboard' : '/'}
         style={{
           fontSize: 'var(--font-lg)',
-          fontWeight: 'var(--weight-bold)',
+          fontWeight: 'var(--weight-extrabold)',
           color: 'var(--color-text-primary)',
-          letterSpacing: '-0.03em',
+          letterSpacing: '-0.04em',
           display: 'flex',
           alignItems: 'center',
           gap: 'var(--space-2)',

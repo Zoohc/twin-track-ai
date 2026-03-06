@@ -148,7 +148,6 @@ export default function DashboardClient({ personas, initialReports, userId, hasA
                 padding: 'var(--space-3) var(--space-4)',
                 background: 'var(--color-accent-subtle)',
                 borderRadius: 8,
-                borderLeft: '3px solid var(--color-accent)',
               }}
             >
               <span style={{ fontSize: 18 }}>🔑</span>
@@ -179,12 +178,12 @@ export default function DashboardClient({ personas, initialReports, userId, hasA
                     style={{
                       flex: 1,
                       padding: 'var(--space-3)',
-                      border: `1.5px solid ${provider === p ? 'var(--color-accent)' : 'var(--color-border)'}`,
+                      border: 'none',
                       borderRadius: 8,
-                      background: provider === p ? 'var(--color-accent-subtle)' : 'var(--color-surface)',
+                      background: provider === p ? 'var(--color-accent-subtle)' : 'var(--color-surface-raised)',
                       color: provider === p ? 'var(--color-accent)' : 'var(--color-text-secondary)',
                       fontSize: 'var(--font-sm)',
-                      fontWeight: provider === p ? 'var(--weight-medium)' : 'var(--weight-regular)',
+                      fontWeight: provider === p ? 'var(--weight-bold)' : 'var(--weight-medium)',
                       cursor: 'pointer',
                       fontFamily: 'inherit',
                       transition: 'all 150ms ease',
@@ -245,11 +244,11 @@ export default function DashboardClient({ personas, initialReports, userId, hasA
                         style={{
                           padding: '6px 14px',
                           borderRadius: 99,
-                          border: `1.5px solid ${selected ? 'var(--color-accent)' : 'var(--color-border)'}`,
-                          background: selected ? 'var(--color-accent-subtle)' : 'var(--color-surface)',
+                          border: 'none',
+                          background: selected ? 'var(--color-accent-subtle)' : 'var(--color-surface-raised)',
                           color: selected ? 'var(--color-accent)' : 'var(--color-text-secondary)',
                           fontSize: 'var(--font-xs)',
-                          fontWeight: selected ? 'var(--weight-medium)' : 'var(--weight-regular)',
+                          fontWeight: selected ? 'var(--weight-bold)' : 'var(--weight-medium)',
                           cursor: 'pointer',
                           fontFamily: 'inherit',
                           transition: 'all 150ms ease',
@@ -319,7 +318,7 @@ export default function DashboardClient({ personas, initialReports, userId, hasA
                     <p
                       style={{
                         fontSize: 'var(--font-sm)',
-                        fontWeight: 'var(--weight-medium)',
+                        fontWeight: 'var(--weight-semibold)',
                         color: 'var(--color-text-primary)',
                         overflow: 'hidden',
                         textOverflow: 'ellipsis',

@@ -7,7 +7,7 @@ export function ProBanner() {
       style={{
         marginTop: 'var(--space-6)',
         textAlign: 'center',
-        borderTop: '3px solid var(--color-accent)',
+        background: 'var(--color-surface-raised)',
       }}
     >
       <p
