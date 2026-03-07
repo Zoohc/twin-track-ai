@@ -137,7 +137,6 @@ async def run_persona_test(
             task=system_prompt,
             llm=llm,
             max_failures=10,         # 기본 5 → 10으로 증가 (파싱 재시도 여유)
-            max_actions_per_step=3,  # 스텝당 동시 액션 제한
         )
 
         # browser-use Agent 실행

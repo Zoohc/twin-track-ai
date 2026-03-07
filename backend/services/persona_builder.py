@@ -36,8 +36,8 @@ DEFAULT_PERSONAS: list[dict[str, str]] = [
         "system_prompt": (
             "You are browsing on a mobile device (viewport: 390x844).\n"
             "You use touch gestures (scroll, tap).\n"
-            "Check if all interactive elements are reachable by thumb.\n"
-            "Report any elements that are too small to tap or outside the viewport."
+            "Try tapping all interactive elements to see if they work.\n"
+            "Scroll through the entire page to explore the content."
         ),
     },
 ]
