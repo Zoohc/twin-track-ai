@@ -64,7 +64,7 @@ export default async function ReportPage({ params }: PageProps) {
             marginBottom: 'var(--space-4)',
           }}
         >
-          ← 홈
+          뒤로
         </a>
 
         {/* 점수 카드 */}
@@ -226,7 +226,17 @@ function AccordionSection({
         }}
       >
         {title}
-        <span>▾</span>
+        <span
+          style={{
+            display: 'inline-block',
+            width: 0,
+            height: 0,
+            borderLeft: '5px solid transparent',
+            borderRight: '5px solid transparent',
+            borderTop: '6px solid currentColor',
+            transition: 'transform 0.15s ease',
+          }}
+        />
       </summary>
       <div style={{ marginTop: 'var(--space-3)' }}>{children}</div>
     </details>

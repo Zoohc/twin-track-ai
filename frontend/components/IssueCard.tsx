@@ -20,6 +20,8 @@ export function IssueCard({ issue, isPro }: IssueCardProps) {
     setTimeout(() => setCopied(false), 2000)
   }
 
+  const hasReproSteps = issue.reproduction_steps && issue.reproduction_steps.length > 0
+
   return (
     <div className="card" style={{ marginBottom: 'var(--space-3)' }}>
       {/* 헤더 */}
@@ -47,7 +49,25 @@ export function IssueCard({ issue, isPro }: IssueCardProps) {
         {issue.description}
       </p>
 
-      {/* 재현 경로 토글 */}
+      {/* 요소 정보 */}
+      {issue.element_info && (
+        <div
+          style={{
+            display: 'inline-block',
+            fontSize: 'var(--font-xs)',
+            fontFamily: 'monospace',
+            background: 'var(--color-surface)',
+            color: 'var(--color-text-secondary)',
+            padding: '2px 8px',
+            borderRadius: 4,
+            marginBottom: 'var(--space-3)',
+          }}
+        >
+          {issue.element_info}
+        </div>
+      )}
+
+      {/* 재현 단계 토글 */}
       <button
         onClick={() => setExpanded((v) => !v)}
         style={{
@@ -58,26 +78,88 @@ export function IssueCard({ issue, isPro }: IssueCardProps) {
           cursor: 'pointer',
           padding: 0,
           fontFamily: 'inherit',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 4,
           marginBottom: expanded ? 'var(--space-2)' : 0,
         }}
       >
-        재현 경로 보기 {expanded ? '▲' : '▼'}
+        재현 단계 보기
+        <span
+          style={{
+            display: 'inline-block',
+            width: 0,
+            height: 0,
+            borderLeft: '4px solid transparent',
+            borderRight: '4px solid transparent',
+            borderTop: expanded ? 'none' : '5px solid currentColor',
+            borderBottom: expanded ? '5px solid currentColor' : 'none',
+            transition: 'transform 0.15s ease',
+          }}
+        />
       </button>
 
       {expanded && (
-        <pre
+        <div
           style={{
             fontSize: 'var(--font-xs)',
             background: 'var(--color-surface)',
             borderRadius: 6,
             padding: 'var(--space-3)',
-            whiteSpace: 'pre-wrap',
-            wordBreak: 'break-word',
             marginBottom: 'var(--space-3)',
           }}
         >
-          {issue.description}
-        </pre>
+          {hasReproSteps ? (
+            <ol
+              style={{
+                margin: 0,
+                paddingLeft: 20,
+                lineHeight: 1.8,
+                color: 'var(--color-text-secondary)',
+              }}
+            >
+              {issue.reproduction_steps!.map((step, i) => (
+                <li key={i}>{step}</li>
+              ))}
+            </ol>
+          ) : (
+            <p
+              style={{
+                whiteSpace: 'pre-wrap',
+                wordBreak: 'break-word',
+                color: 'var(--color-text-secondary)',
+                margin: 0,
+              }}
+            >
+              {issue.description}
+            </p>
+          )}
+        </div>
+      )}
+
+      {/* 스크린샷 */}
+      {issue.screenshot_urls && issue.screenshot_urls.length > 0 && (
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))',
+            gap: 'var(--space-2)',
+            marginBottom: 'var(--space-3)',
+          }}
+        >
+          {issue.screenshot_urls.map((url, i) => (
+            <img
+              key={i}
+              src={url}
+              alt={`Screenshot ${i + 1}`}
+              style={{
+                width: '100%',
+                borderRadius: 6,
+                border: '1px solid var(--color-border)',
+              }}
+            />
+          ))}
+        </div>
       )}
 
       {/* Fix Pack 영역 */}
@@ -98,7 +180,7 @@ export function IssueCard({ issue, isPro }: IssueCardProps) {
               marginBottom: 'var(--space-2)',
             }}
           >
-            📋 Cursor에 붙여넣기
+            AI 수정 제안
           </p>
           <pre
             style={{
@@ -117,7 +199,7 @@ export function IssueCard({ issue, isPro }: IssueCardProps) {
             className="btn-secondary"
             style={{ height: 32, fontSize: 'var(--font-xs)', padding: '0 12px' }}
           >
-            {copied ? '복사됨 ✓' : '복사'}
+            {copied ? '복사 완료' : '복사'}
           </button>
         </div>
       ) : issue.severity === 'critical' ? (
@@ -131,7 +213,7 @@ export function IssueCard({ issue, isPro }: IssueCardProps) {
           }}
         >
           <p style={{ fontSize: 'var(--font-xs)', color: 'var(--color-text-secondary)' }}>
-            🔒 AI 수정 프롬프트는 Pro 플랜에서 확인 가능
+            AI 수정 프롬프트는 Pro 플랜에서 확인 가능
           </p>
         </div>
       ) : null}

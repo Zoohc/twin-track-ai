@@ -98,7 +98,7 @@ function ApiKeySettings() {
             value={apiKey}
             onChange={(e) => setApiKey(e.target.value)}
             error={!!error}
-            hint={error || (success ? '✓ 저장되었습니다' : '현재 키는 마스킹 표시됩니다')}
+            hint={error || (success ? '저장되었습니다' : '현재 키는 마스킹 표시됩니다')}
             autoComplete="off"
           />
 

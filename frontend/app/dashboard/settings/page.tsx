@@ -23,7 +23,7 @@ export default async function SettingsPage() {
             marginBottom: 'var(--space-6)',
           }}
         >
-          ← 뒤로
+          뒤로
         </a>
 
         <h1

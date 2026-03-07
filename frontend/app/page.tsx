@@ -194,17 +194,17 @@ export default async function LandingPage() {
           >
             {[
               {
-                icon: '🤖',
+                icon: 'AI',
                 title: 'AI 페르소나',
                 desc: '초보 유저, 파워 유저, 모바일 — 실제 사용 패턴 시뮬레이션',
               },
               {
-                icon: '📋',
+                icon: 'QA',
                 title: '자연어 리포트',
                 desc: '기술 용어 없이 버그와 UX 문제를 한국어로 설명',
               },
               {
-                icon: '⚡',
+                icon: 'FIX',
                 title: 'AI Fix Pack',
                 desc: '각 버그마다 Cursor/Claude에 붙여넣을 수정 프롬프트 제공',
               },

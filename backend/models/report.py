@@ -15,6 +15,9 @@ class Issue(BaseModel):
     affected_persona: str
     screenshot_url: Optional[str] = None
     fix_prompt: Optional[str] = None
+    reproduction_steps: Optional[list[str]] = None
+    screenshot_urls: Optional[list[str]] = None
+    element_info: Optional[str] = None
 
 
 class PersonaResult(BaseModel):

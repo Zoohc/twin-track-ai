@@ -9,16 +9,16 @@ interface LiveFeedProps {
   initialMessages?: FeedMessage[]
 }
 
-const LEVEL_ICON: Record<FeedLevel, string> = {
-  success: '✓',
-  error: '✕',
-  info: '⏳',
-}
-
 const LEVEL_COLOR: Record<FeedLevel, string> = {
   success: 'var(--color-accent)',
   error: 'var(--color-danger)',
-  info: 'var(--color-text-primary)',
+  info: 'var(--color-text-secondary)',
+}
+
+const DOT_BG: Record<FeedLevel, string> = {
+  success: 'var(--color-accent)',
+  error: 'var(--color-danger)',
+  info: 'var(--color-text-tertiary)',
 }
 
 export default function LiveFeed({ jobId, initialMessages = [] }: LiveFeedProps) {
@@ -47,7 +47,6 @@ export default function LiveFeed({ jobId, initialMessages = [] }: LiveFeedProps)
     }
   }, [jobId])
 
-  // 새 메시지 추가 시 하단으로 스크롤
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
@@ -56,22 +55,23 @@ export default function LiveFeed({ jobId, initialMessages = [] }: LiveFeedProps)
     <div
       style={{
         overflowY: 'auto',
-        maxHeight: 280,
+        maxHeight: 360,
         display: 'flex',
         flexDirection: 'column',
-        gap: 2,
+        gap: 'var(--space-2)',
         padding: 'var(--space-3)',
-        background: 'var(--color-white)',
-        borderRadius: 8,
+        background: 'var(--color-surface)',
+        borderRadius: 'var(--radius-md)',
+        boxShadow: 'var(--shadow-sm)',
       }}
     >
       {messages.length === 0 ? (
         <p
           style={{
             fontSize: 'var(--font-sm)',
-            color: 'var(--color-text-secondary)',
+            color: 'var(--color-text-tertiary)',
             textAlign: 'center',
-            padding: 'var(--space-4) 0',
+            padding: 'var(--space-6) 0',
           }}
         >
           테스트 시작을 기다리는 중...
@@ -83,14 +83,53 @@ export default function LiveFeed({ jobId, initialMessages = [] }: LiveFeedProps)
             style={{
               display: 'flex',
               alignItems: 'flex-start',
-              gap: 6,
-              color: LEVEL_COLOR[msg.level],
-              fontSize: 'var(--font-sm)',
-              padding: '2px 0',
+              gap: 'var(--space-3)',
+              padding: 'var(--space-2) var(--space-3)',
+              background: 'var(--color-surface-raised)',
+              borderRadius: 'var(--radius-sm)',
+              transition: 'opacity var(--transition-fast)',
             }}
           >
-            <span style={{ flexShrink: 0, width: 14 }}>{LEVEL_ICON[msg.level]}</span>
-            <span style={{ wordBreak: 'break-word' }}>{msg.message}</span>
+            {/* 상태 도트 */}
+            <span
+              style={{
+                flexShrink: 0,
+                width: 8,
+                height: 8,
+                borderRadius: '50%',
+                background: DOT_BG[msg.level],
+                marginTop: 6,
+              }}
+            />
+            {/* 메시지 */}
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <span
+                style={{
+                  fontSize: 'var(--font-sm)',
+                  color: LEVEL_COLOR[msg.level],
+                  wordBreak: 'break-word',
+                  lineHeight: 1.5,
+                }}
+              >
+                {msg.message}
+              </span>
+              {msg.created_at && (
+                <span
+                  style={{
+                    display: 'block',
+                    fontSize: 11,
+                    color: 'var(--color-text-tertiary)',
+                    marginTop: 2,
+                  }}
+                >
+                  {new Date(msg.created_at).toLocaleTimeString('ko-KR', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                  })}
+                </span>
+              )}
+            </div>
           </div>
         ))
       )}

@@ -44,6 +44,9 @@ export interface Issue {
   affected_persona: string
   screenshot_url: string | null
   fix_prompt: string | null
+  reproduction_steps: string[] | null
+  screenshot_urls: string[] | null
+  element_info: string | null
 }
 
 export interface PersonaResult {

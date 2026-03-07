@@ -52,7 +52,7 @@ export default function OnboardingPage() {
               fontWeight: 'var(--weight-bold)',
             }}
           >
-            ✓
+            V
           </div>
           <div style={{ height: 2, flex: 1, background: 'var(--color-accent)' }} />
           <div

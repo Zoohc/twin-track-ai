@@ -89,26 +89,23 @@ async def run_job(job_id: str) -> None:
     if persona_ids:
         selected_personas = [p for p in DEFAULT_PERSONAS if p["id"] in persona_ids]
     else:
-        # 기본 전체 실행
         selected_personas = list(DEFAULT_PERSONAS)
-
-    # Pro 유저가 아닌 경우 DB에서 커스텀 페르소나 추가 (무시)
-    # 추후 Pro 기능 활성화 시 여기서 처리
 
     # 5. 각 페르소나 순차 실행
     all_logs: list[str] = []
+    all_structured_data: list[dict] = []
     persona_results: list[PersonaResult] = []
 
     for idx, persona in enumerate(selected_personas):
         await insert_feed_message(
             job_id,
-            f"페르소나 {idx + 1}/{len(selected_personas)}: {persona['name']} 시작",
+            f"{persona['name']} 테스트 시작 ({idx + 1}/{len(selected_personas)})",
             "info",
         )
 
         system_prompt = build_system_prompt(persona, url)
 
-        persona_logs = await run_persona_test(
+        result = await run_persona_test(
             url=url,
             persona=persona,
             system_prompt=system_prompt,
@@ -117,7 +114,14 @@ async def run_job(job_id: str) -> None:
             on_log=lambda msg, level: insert_feed_message(job_id, msg, level),
         )
 
+        persona_logs = result["logs"]
+        structured_data = result["structured_data"]
+
         all_logs.extend(persona_logs)
+        all_structured_data.append({
+            "persona_name": persona["name"],
+            **structured_data,
+        })
 
         persona_results.append(
             PersonaResult(
@@ -129,16 +133,32 @@ async def run_job(job_id: str) -> None:
         )
 
         await insert_feed_message(
-            job_id, f"페르소나 {persona['name']} 완료", "success"
+            job_id, f"{persona['name']} 테스트 완료", "success"
         )
 
+        # 마지막 스크린샷을 피드에 저장 (미리보기용)
+        if structured_data.get("screenshots"):
+            last_screenshot = structured_data["screenshots"][-1]
+            try:
+                db.table("feed_messages").insert(
+                    {
+                        "job_id": job_id,
+                        "message": f"{persona['name']} 최종 화면",
+                        "level": "info",
+                        "screenshot_base64": last_screenshot[:500000],  # 500KB 제한
+                    }
+                ).execute()
+            except Exception as exc:
+                logger.debug("Screenshot feed insert failed: %s", exc)
+
     # 6. 리포트 생성 (LLM 호출)
-    await insert_feed_message(job_id, "AI 리포트 생성 중...", "info")
+    await insert_feed_message(job_id, "결과 분석 중", "info")
 
     try:
         report_result = await generate_report(
             url=url,
             agent_logs=all_logs,
+            structured_data=all_structured_data,
             api_key=api_key,
             provider=provider,
         )
@@ -151,11 +171,11 @@ async def run_job(job_id: str) -> None:
     # 7. Pro: AI Fix Pack 생성
     issues = report_result.issues
     if plan == "pro":
-        await insert_feed_message(job_id, "AI Fix Pack 생성 중...", "info")
+        await insert_feed_message(job_id, "AI Fix Pack 생성 중", "info")
         try:
             issues = await generate_fix_prompts(
                 issues=issues,
-                stack="React/Next.js (자동 감지)",  # TODO: 실제 스택 감지
+                stack="React/Next.js (자동 감지)",
                 api_key=api_key,
                 provider=provider,
             )
@@ -181,7 +201,7 @@ async def run_job(job_id: str) -> None:
         {"status": "done", "finished_at": datetime.now(timezone.utc).isoformat()}
     ).eq("id", job_id).execute()
 
-    await insert_feed_message(job_id, "테스트 완료! 리포트를 확인해주세요.", "success")
+    await insert_feed_message(job_id, "테스트 완료 - 리포트가 생성되었습니다", "success")
     logger.info("Job %s completed successfully", job_id)
 
 

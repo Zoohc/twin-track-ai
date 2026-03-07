@@ -12,7 +12,7 @@ import type { Job, FeedMessage, JobStatus } from '@/types'
 const STATUS_LABEL: Record<JobStatus, string> = {
   queued: '대기 중...',
   running: 'AI가 테스트 중입니다...',
-  done: '테스트 완료!',
+  done: '테스트 완료',
   failed: '테스트 실패',
 }
 
@@ -89,7 +89,7 @@ export default function RunPageClient({ jobId, initialJob, initialMessages, back
             marginBottom: 'var(--space-3)',
           }}
         >
-          ← 뒤로
+          뒤로
         </a>
         <h1
           style={{
@@ -163,7 +163,7 @@ export default function RunPageClient({ jobId, initialJob, initialMessages, back
                 fontWeight: 'var(--weight-medium)',
               }}
             >
-              {isDone ? '✓ 테스트 완료' : '✕ 테스트 실패'}
+              {isDone ? '테스트 완료' : '테스트 실패'}
             </div>
           )}
         </div>
