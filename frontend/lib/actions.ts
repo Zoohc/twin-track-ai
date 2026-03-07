@@ -2,7 +2,7 @@
 
 import { auth } from '@/auth'
 import { redirect } from 'next/navigation'
-import { createJob, cancelJob, saveApiKey } from '@/lib/api'
+import { createJob, cancelJob, saveApiKey, deleteReport } from '@/lib/api'
 import type { CreateJobRequest, LLMProvider } from '@/types'
 
 async function requireAuth() {
@@ -40,4 +40,9 @@ export async function saveApiKeyAction(
     llm_provider: llmProvider,
     llm_api_key: apiKey,
   })
+}
+
+export async function deleteReportAction(reportId: string): Promise<void> {
+  const session = await requireAuth()
+  await deleteReport(session.userId, reportId)
 }

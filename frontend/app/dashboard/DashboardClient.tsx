@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Card } from '@/components/ui/Card'
-import { createJobAction, saveApiKeyAction } from '@/lib/actions'
+import { createJobAction, saveApiKeyAction, deleteReportAction } from '@/lib/actions'
 import { listReports } from '@/lib/api'
 import type { Persona, Report, PaginatedResponse, LLMProvider } from '@/types'
 
@@ -53,6 +53,7 @@ export default function DashboardClient({ personas, initialReports, userId, hasA
   const [cursor, setCursor] = useState<string | null>(initialReports.next_cursor)
   const [hasNext, setHasNext] = useState(initialReports.has_next)
   const [loadingMore, setLoadingMore] = useState(false)
+  const [deletingId, setDeletingId] = useState<string | null>(null)
 
   function togglePersona(id: string) {
     setSelectedPersonaIds((prev) =>
@@ -118,6 +119,20 @@ export default function DashboardClient({ personas, initialReports, userId, hasA
     })
   }
 
+  async function handleDelete(reportId: string) {
+    if (deletingId) return
+    if (!confirm('이 리포트를 삭제하시겠습니까?')) return
+    setDeletingId(reportId)
+    try {
+      await deleteReportAction(reportId)
+      setReports((prev) => prev.filter((r) => r.id !== reportId))
+    } catch {
+      alert('삭제에 실패했습니다.')
+    } finally {
+      setDeletingId(null)
+    }
+  }
+
   async function loadMore() {
     if (!cursor || loadingMore) return
     setLoadingMore(true)
@@ -150,7 +165,7 @@ export default function DashboardClient({ personas, initialReports, userId, hasA
                 borderRadius: 8,
               }}
             >
-              <span style={{ fontSize: 18 }}>🔑</span>
+              <span style={{ fontSize: 'var(--font-sm)', fontWeight: 'var(--weight-bold)', color: 'var(--color-accent)' }}>KEY</span>
               <div>
                 <p
                   style={{
@@ -289,62 +304,88 @@ export default function DashboardClient({ personas, initialReports, userId, hasA
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
             {reports.map((report) => (
-              <a
-                key={report.id}
-                href={`/dashboard/report/${report.id}`}
-                style={{ textDecoration: 'none' }}
-              >
-                <Card
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 'var(--space-3)',
-                    cursor: 'pointer',
-                    transition: 'box-shadow 150ms ease',
-                  }}
+              <div key={report.id} style={{ position: 'relative' }}>
+                <a
+                  href={`/dashboard/report/${report.id}`}
+                  style={{ textDecoration: 'none' }}
                 >
-                  <span
+                  <Card
                     style={{
-                      width: 10,
-                      height: 10,
-                      borderRadius: '50%',
-                      background: report.score !== null
-                        ? report.score >= 80 ? 'var(--color-accent)' : report.score >= 50 ? 'var(--color-warning)' : 'var(--color-danger)'
-                        : 'var(--color-text-tertiary)',
-                      flexShrink: 0,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 'var(--space-3)',
+                      cursor: 'pointer',
+                      transition: 'box-shadow 150ms ease',
                     }}
-                  />
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <p
-                      style={{
-                        fontSize: 'var(--font-sm)',
-                        fontWeight: 'var(--weight-semibold)',
-                        color: 'var(--color-text-primary)',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap',
-                      }}
-                    >
-                      {report.url}
-                    </p>
-                    <p style={{ fontSize: 'var(--font-xs)', color: 'var(--color-text-tertiary)' }}>
-                      {timeAgo(report.created_at)}
-                    </p>
-                  </div>
-                  {report.score !== null && (
+                  >
                     <span
                       style={{
-                        fontSize: 'var(--font-lg)',
-                        fontWeight: 'var(--weight-bold)',
-                        color: getScoreColor(report.score),
+                        width: 10,
+                        height: 10,
+                        borderRadius: '50%',
+                        background: report.score !== null
+                          ? report.score >= 80 ? 'var(--color-accent)' : report.score >= 50 ? 'var(--color-warning)' : 'var(--color-danger)'
+                          : 'var(--color-text-tertiary)',
                         flexShrink: 0,
                       }}
-                    >
-                      {report.score}
-                    </span>
-                  )}
-                </Card>
-              </a>
+                    />
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <p
+                        style={{
+                          fontSize: 'var(--font-sm)',
+                          fontWeight: 'var(--weight-semibold)',
+                          color: 'var(--color-text-primary)',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap',
+                        }}
+                      >
+                        {report.url}
+                      </p>
+                      <p style={{ fontSize: 'var(--font-xs)', color: 'var(--color-text-tertiary)' }}>
+                        {timeAgo(report.created_at)}
+                      </p>
+                    </div>
+                    {report.score !== null && (
+                      <span
+                        style={{
+                          fontSize: 'var(--font-lg)',
+                          fontWeight: 'var(--weight-bold)',
+                          color: getScoreColor(report.score),
+                          flexShrink: 0,
+                          marginRight: 32,
+                        }}
+                      >
+                        {report.score}
+                      </span>
+                    )}
+                  </Card>
+                </a>
+                <button
+                  onClick={() => void handleDelete(report.id)}
+                  disabled={deletingId === report.id}
+                  style={{
+                    position: 'absolute',
+                    right: 12,
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'none',
+                    border: 'none',
+                    color: 'var(--color-text-tertiary)',
+                    cursor: deletingId === report.id ? 'wait' : 'pointer',
+                    padding: '4px 8px',
+                    fontSize: 'var(--font-xs)',
+                    borderRadius: 4,
+                    opacity: deletingId === report.id ? 0.5 : 0.6,
+                    fontFamily: 'inherit',
+                    transition: 'opacity 150ms ease',
+                  }}
+                  onMouseEnter={(e) => { (e.target as HTMLElement).style.opacity = '1'; (e.target as HTMLElement).style.color = 'var(--color-danger)' }}
+                  onMouseLeave={(e) => { (e.target as HTMLElement).style.opacity = '0.6'; (e.target as HTMLElement).style.color = 'var(--color-text-tertiary)' }}
+                >
+                  {deletingId === report.id ? '...' : '삭제'}
+                </button>
+              </div>
             ))}
 
             {hasNext && (

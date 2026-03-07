@@ -8,74 +8,76 @@ from backend.models.report import ReportGenerationResult, Issue
 
 logger = logging.getLogger(__name__)
 
-REPORT_PROMPT = """You are an experienced QA analyst reviewing automated browser test results.
+REPORT_PROMPT = """You are a senior UX researcher writing a professional usability audit report.
 
 ## Test Target
 URL: {url}
 
-## Agent Logs
+## Raw Agent Test Logs
 {agent_logs}
 
-## Structured Action Data
+## Structured Interaction Data
 {structured_data}
 
-## Instructions
-Based on the test data above, generate a detailed, SPECIFIC JSON report.
+## Your Task
+Analyze the test data and generate a SPECIFIC, ACTIONABLE usability report in Korean.
 
-CRITICAL RULES for issues:
-1. Each issue MUST include concrete reproduction_steps as a numbered list
-2. Each step must describe the EXACT action (click, scroll, type) and the EXACT element (button text, selector, position)
-3. Include the specific URL where the issue occurs
-4. Describe what ACTUALLY happened vs what SHOULD have happened
-5. If an element is involved, specify it in element_info (e.g. "button.submit at (320, 450)" or "nav > a:nth-child(3)")
-6. Do NOT write vague descriptions like "탐색이 원활하지 않음" — be specific about WHAT failed and WHERE
+## CRITICAL RULES — Read carefully
+
+### What makes a BAD issue (DO NOT write like this):
+- "탐색 행동이 반복적으로 동일 페이지에서 발생" ← TOO VAGUE. Which page? Which element? Why?
+- "네비게이션이 원활하지 않음" ← MEANINGLESS without specifics
+- "사용자 경험이 좋지 않음" ← This says nothing
+
+### What makes a GOOD issue (WRITE like this):
+- "메인 페이지 상단 'Get Started' 버튼(파란색, 우측 상단)을 클릭하면 로그인 페이지로 이동하지만, 회원가입 페이지로 갈 것이라 기대함. 버튼 텍스트와 실제 동작이 불일치"
+- "모바일 뷰포트(390px)에서 footer의 '이용약관' 링크가 화면 밖으로 잘림. overflow-x: hidden 적용 필요"
+- "'문의하기' 버튼을 연속 3회 빠르게 클릭하면 폼이 3번 제출됨. debounce 처리 필요"
+
+### Issue Requirements:
+1. **구체적 요소 명시**: 버튼 텍스트, 링크 텍스트, 위치(상단/하단/좌측/우측), 색상 등
+2. **행동-결과 기술**: "X를 했더니 Y가 발생했지만, Z를 기대했음" 패턴으로 기술
+3. **워크플로우 기술**: 어떤 페이지에서 어떤 경로로 이동했는지 URL 포함
+4. **재현 가능한 단계**: 누구든 따라할 수 있는 구체적 단계 제공
+5. **개선 제안 포함**: 단순 문제 지적이 아니라 어떻게 고칠지 제안
 
 ## Output Format
 Return EXACTLY this JSON structure:
 {{
   "score": <0-100 integer>,
-  "summary": "<2-3 sentence Korean summary focusing on the most impactful finding>",
+  "summary": "<Korean, 2-3 sentences. 가장 중요한 발견과 전체 UX 품질 평가. 구체적으로.>",
   "issues": [
     {{
       "id": "iss_1",
       "severity": "critical|warning|ok",
-      "title": "<Korean, max 40 chars, specific problem description>",
-      "description": "<Korean, 2-3 sentences: what happened, where, impact>",
+      "title": "<Korean, max 50 chars. 구체적 문제: '어디에서' '무엇이' 문제인지>",
+      "description": "<Korean, 3-5 sentences. 상세 설명: 어떤 화면에서, 어떤 요소가, 어떻게 문제인지. 기대 동작 vs 실제 동작. UX 관점의 영향도.>",
       "affected_persona": "<persona name>",
-      "element_info": "<specific element: tag, class, id, position, or text>",
+      "element_info": "<구체적 요소: 'button.cta-primary \"시작하기\" at hero section' 또는 'nav > ul > li:nth-child(3) \"서비스\"' 등>",
       "reproduction_steps": [
-        "1. {url} 페이지에 접속",
-        "2. [구체적 요소]를 클릭/스크롤/입력",
-        "3. [다음 액션]",
-        "4. 예상: [기대 동작] / 실제: [실제 동작]"
+        "1. {url} 메인 페이지에 접속한다",
+        "2. 상단 네비게이션에서 '서비스' 메뉴를 클릭한다",
+        "3. 스크롤을 아래로 내려 '문의하기' 섹션으로 이동한다",
+        "4. '제출' 버튼을 클릭한다",
+        "5. 기대: 성공 메시지 표시 / 실제: 아무 반응 없음 (버튼 disabled 상태 아닌데 동작 안 함)"
       ]
     }}
   ]
 }}
 
-## Example Issue (for reference):
-{{
-  "id": "iss_1",
-  "severity": "warning",
-  "title": "모바일에서 네비게이션 메뉴 버튼 반응 없음",
-  "description": "모바일 뷰포트(390x844)에서 햄버거 메뉴 아이콘을 탭해도 메뉴가 펼쳐지지 않습니다. 터치 이벤트 핸들러가 누락된 것으로 보입니다.",
-  "affected_persona": "모바일 유저",
-  "element_info": "button.mobile-menu-toggle at header",
-  "reproduction_steps": [
-    "1. 모바일 뷰포트(390x844)로 메인 페이지 접속",
-    "2. 우측 상단 햄버거 메뉴 아이콘(三) 탭",
-    "3. 예상: 드롭다운 메뉴 표시 / 실제: 아무 반응 없음",
-    "4. 여러 번 반복 탭해도 동일한 결과"
-  ]
-}}
+## Scoring Guide:
+- 0-30: 핵심 기능이 작동하지 않음 (링크 깨짐, 페이지 로드 실패, 주요 CTA 동작 안함)
+- 31-50: 주요 플로우에 심각한 문제 (폼 제출 실패, 네비게이션 혼란, 오류 메시지 없음)
+- 51-70: 기본 기능은 동작하지만 UX 문제 다수 (느린 응답, 혼란스러운 레이아웃, 작은 터치 영역)
+- 71-85: 대부분 잘 동작하지만 개선 여지 있음 (일관성 부족, 마이너 레이아웃 이슈)
+- 86-95: 양호한 UX, 사소한 개선 사항만 존재
+- 96-100: 전문적 수준의 UX, 이슈 없음
 
-Scoring guide:
-- 0-40: Multiple critical bugs blocking core flows
-- 41-70: Some issues but main flows work
-- 71-90: Minor UX issues only
-- 91-100: No significant issues found
-
-If there are no issues, return an empty issues array with score 91-100.
+## IMPORTANT:
+- 이슈가 없더라도 score 96-100으로 반환하고 issues를 빈 배열로 반환
+- 에이전트가 탐색한 구체적인 페이지/요소 데이터가 부족하면, 확인 가능한 범위에서만 이슈를 생성
+- 추측이나 일반론이 아닌, 실제 테스트 데이터에 근거한 이슈만 보고
+- 모든 텍스트는 한국어로 작성
 """
 
 
@@ -91,15 +93,21 @@ def _format_structured_data(structured_data: list[dict]) -> str:
         urls = data.get("urls_visited", [])
         action_details = data.get("actions", [])
 
-        section = f"### {persona}\n"
+        section = f"### Persona: {persona}\n"
         if urls:
             section += f"URLs visited: {', '.join(urls[:10])}\n"
         if actions:
-            section += f"Actions performed: {', '.join(actions[:20])}\n"
+            section += f"Actions performed ({len(actions)} total): {', '.join(actions[:30])}\n"
         if action_details:
-            section += "Action details:\n"
-            for detail in action_details[:15]:
-                section += f"  - {str(detail)[:200]}\n"
+            section += "Detailed action log:\n"
+            for i, detail in enumerate(action_details[:25]):
+                section += f"  Step {i+1}: {str(detail)[:300]}\n"
+
+        thoughts = data.get("thoughts", [])
+        if thoughts:
+            section += "Agent observations/reasoning:\n"
+            for i, thought in enumerate(thoughts[:15]):
+                section += f"  Thought {i+1}: {thought}\n"
 
         parts.append(section)
 
@@ -144,7 +152,6 @@ async def generate_report(
     # Anthropic은 JSON 블록으로 감쌀 수 있으므로 추출
     if raw_json.strip().startswith("```"):
         lines = raw_json.strip().split("\n")
-        # ```json ... ``` 패턴에서 JSON만 추출
         json_lines = []
         in_block = False
         for line in lines:

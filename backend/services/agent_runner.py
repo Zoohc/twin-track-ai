@@ -85,6 +85,7 @@ def _extract_structured_data(history) -> dict[str, Any]:
         "actions": [],
         "action_names": [],
         "urls_visited": [],
+        "thoughts": [],
     }
 
     if not history:
@@ -131,6 +132,15 @@ def _extract_structured_data(history) -> dict[str, Any]:
                 data["urls_visited"] = [str(u) for u in urls]
     except Exception as e:
         logger.debug("URL extraction failed: %s", e)
+
+    # 모델 사고 과정 추출 (에이전트의 내부 판단)
+    try:
+        if hasattr(history, 'model_thoughts'):
+            thoughts = history.model_thoughts()
+            if thoughts:
+                data["thoughts"] = [str(t)[:500] for t in thoughts]
+    except Exception as e:
+        logger.debug("Model thoughts extraction failed: %s", e)
 
     return data
 

@@ -78,3 +78,38 @@ async def get_report(
         raise HTTPException(status_code=404, detail="리포트를 찾을 수 없습니다")
 
     return Report(**result.data)
+
+
+@router.delete("/{report_id}", status_code=204)
+async def delete_report(
+    report_id: uuid.UUID,
+    x_user_id: Optional[str] = Header(default=None),
+) -> None:
+    """리포트 삭제. 연관된 feed_messages도 정리."""
+    user_id = _require_user(x_user_id)
+    db = get_client()
+
+    # 리포트 존재 확인
+    result = (
+        db.table("reports")
+        .select("id, job_id")
+        .eq("id", str(report_id))
+        .eq("user_id", user_id)
+        .single()
+        .execute()
+    )
+
+    if not result.data:
+        raise HTTPException(status_code=404, detail="리포트를 찾을 수 없습니다")
+
+    job_id = result.data.get("job_id")
+
+    # feed_messages 삭제 (job_id 기준)
+    if job_id:
+        try:
+            db.table("feed_messages").delete().eq("job_id", job_id).execute()
+        except Exception:
+            pass  # feed_messages 삭제 실패해도 리포트는 삭제
+
+    # 리포트 삭제
+    db.table("reports").delete().eq("id", str(report_id)).eq("user_id", user_id).execute()

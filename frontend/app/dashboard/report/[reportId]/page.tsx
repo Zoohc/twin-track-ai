@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/Badge'
 import { IssueCard } from '@/components/IssueCard'
 import type { IssueSeverity } from '@/types'
 import { ProBanner } from './ProBanner'
+import { DeleteButton } from './DeleteButton'
 
 interface PageProps {
   params: Promise<{ reportId: string }>
@@ -188,6 +189,7 @@ export default async function ReportPage({ params }: PageProps) {
           <a href="/dashboard" className="btn-secondary" style={{ flex: 1, textAlign: 'center', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             다시 테스트
           </a>
+          <DeleteButton reportId={reportId} />
         </div>
       </main>
     </div>

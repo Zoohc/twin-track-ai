@@ -83,6 +83,10 @@ export async function getReport(userId: string, reportId: string): Promise<Repor
   return apiFetch<Report>(`/api/reports/${reportId}`, userId)
 }
 
+export async function deleteReport(userId: string, reportId: string): Promise<void> {
+  await apiFetch<void>(`/api/reports/${reportId}`, userId, { method: 'DELETE' })
+}
+
 // ===== Personas =====
 
 export async function listPersonas(userId: string): Promise<Persona[]> {
